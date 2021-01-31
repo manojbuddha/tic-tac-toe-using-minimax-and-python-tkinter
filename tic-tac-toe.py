@@ -9,13 +9,103 @@ TURN = "X"
 BOARD = []
 WIN = False
 
-def minimax():
-    
-    pass
+def evaluate(board,turn):
+    win = False
+    for ind in range(0,3):
 
-def findbestmove():
+        if board[ind][0] == board[ind][1] == board[ind][2] == turn :
+            win=True
+        elif board[0][ind] == board[1][ind] == board[2][ind] == turn : 
+            win=True
+    if board[0][0]==board[1][1]==board[2][2]==turn or board[0][2]==board[1][1]==board[2][0]==turn:
+            win=True        
+    if win:
+        if turn == 'O':
+            return 10
+        elif turn == 'X':
+            return -10
+    return 0
+
+def check_draw(board):
+    for i in range(0,3):
+        for j in range(0,3):
+            if board[i][j] == "NONE":
+                return False
+    return True
     
-    pass
+
+def minimax(board, is_max, turn):
+    # if not check_draw(board):
+    #     if is_max:
+    #         turn = "O"
+    #     else:
+    #         turn = "X"
+    # else:
+    #     if is_max:
+    #         turn = "X"
+    #     else:
+    #         turn = "O"        
+
+    # if is_max :
+    #     turn = "O"
+    # else:
+    #     turn = "X"
+    # if check_draw(board):            
+    #     turn = "X"        
+    score = evaluate(board, turn)
+
+    if score == 10:
+        return score
+    if score == -10:
+        return score    
+    if check_draw(board):
+        return score
+    
+    if is_max:
+        best = -1000
+        for i in range(0,3):
+            for j in range(0,3):
+                if board[i][j]=="NONE":                
+                    board[i][j] = "O"
+                    best = max(best,minimax(board, False, "O"))
+                    
+                    board[i][j] = "NONE"
+        return best
+        
+
+    else:
+        best = 1000
+        for i in range(0,3):
+            for j in range(0,3):
+                if board[i][j]=="NONE":        
+                    board[i][j] = "X"
+                    # print(minimax(board, True))
+                    best = min(best,minimax(board, True, "X"))
+                    # for ele in board:
+                    #     print(ele)
+                    # print(best)
+                    board[i][j] = "NONE"
+        return best
+    
+    return best
+def findbestmove(board):
+    best = -100
+    best_move_location = []
+    for i in range(0,3):
+        for j in range(0,3):
+            if board[i][j]=="NONE":
+                board[i][j] = "O"
+                move_score = minimax(board,False,"X")
+                board[i][j] = "NONE"    
+                # print(i,j,move_score,best)
+                if move_score > best:                  
+                    best_move_location = [i,j]
+                    best = move_score
+        
+
+    # print(best_move_location,best)
+    return best_move_location
+
 
 #Sets board array to none
 def set_board():
@@ -55,6 +145,9 @@ def set_turn():
         TURN = "X"
 
 def set_win():
+    pass
+
+def play_move():
     pass
 
 #Checks for win board after every move
@@ -110,8 +203,9 @@ def ai_turn():
                 count+=1
         if len(unraveled_board) == 0:
             return
-        choice = random.choice(unraveled_board)
-        co_ord1 = co_ord[unraveled_board.index(choice)]
+        # choice = random.choice(unraveled_board)
+        # co_ord1 = co_ord[unraveled_board.index(choice)]
+        co_ord1 = findbestmove(BOARD)
         loc=[]
         for i in range(0,len(co_ord1)):
     
@@ -124,7 +218,6 @@ def ai_turn():
         turn = get_turn()            
         x=loc[1]
         y=loc[0]    
-        print(x,y)
         if turn=="X":
             game_canvas.create_text(x,y,text=turn,font=('Pursia',80),fil="red")
         else:
@@ -132,11 +225,6 @@ def ai_turn():
         BOARD[co_ord1[0]][co_ord1[1]] = turn
         check_win()
         set_turn()          
-        
-        print(choice)
-        print(co_ord)
-        print(unraveled_board)
-        print(BOARD)
         
 
 def onObjectClick(event):
@@ -169,11 +257,8 @@ def onObjectClick(event):
         if y==500:
             l2=2   
         if BOARD[l2][l1]!='NONE':
-            print("turn rejected")
             return
         BOARD[l2][l1] = turn
-        print(BOARD)
-        print(x,y)
         if turn=="X":
             game_canvas.create_text(x,y,text=turn,font=('Pursia',80),fil="red")
         else:
@@ -181,8 +266,6 @@ def onObjectClick(event):
         check_win()
         set_turn()
         ai_turn()
-        
-                
         
 
 window = Tk()
