@@ -9,21 +9,34 @@ TURN = "X"
 BOARD = []
 WIN = False
 
-def evaluate(board,turn):
-    win = False
+def evaluate(board):
+
     for ind in range(0,3):
 
-        if board[ind][0] == board[ind][1] == board[ind][2] == turn :
-            win=True
-        elif board[0][ind] == board[1][ind] == board[2][ind] == turn : 
-            win=True
-    if board[0][0]==board[1][1]==board[2][2]==turn or board[0][2]==board[1][1]==board[2][0]==turn:
-            win=True        
-    if win:
-        if turn == 'O':
-            return 10
-        elif turn == 'X':
-            return -10
+        if board[ind][0] == board[ind][1] == board[ind][2] :
+            if board[ind][0] == "X":
+                return -10
+            elif board[ind][0] == "O":
+                return 10
+
+        elif board[0][ind] == board[1][ind] == board[2][ind]: 
+            if board[0][ind] == "X":
+                return -10
+            elif board[0][ind] == "O":
+                return 10
+
+    if board[0][0]==board[1][1]  == board[2][2]:
+            if board[1][1] == "X":
+                return -10
+            elif board[1][1] == "O":
+                return 10
+    if board[0][2]==board[1][1] ==board[2][0]:
+            if board[1][1] == "X":
+                return -10
+            elif board[1][1] == "O":
+                return 10
+
+
     return 0
 
 def check_draw(board):
@@ -34,32 +47,17 @@ def check_draw(board):
     return True
     
 
-def minimax(board, is_max, turn):
-    # if not check_draw(board):
-    #     if is_max:
-    #         turn = "O"
-    #     else:
-    #         turn = "X"
-    # else:
-    #     if is_max:
-    #         turn = "X"
-    #     else:
-    #         turn = "O"        
+def minimax(board, is_max):
 
-    # if is_max :
-    #     turn = "O"
-    # else:
-    #     turn = "X"
-    # if check_draw(board):            
-    #     turn = "X"        
-    score = evaluate(board, turn)
-
+    score = evaluate(board)
+    
     if score == 10:
         return score
     if score == -10:
         return score    
+
     if check_draw(board):
-        return score
+        return 0
     
     if is_max:
         best = -1000
@@ -67,7 +65,7 @@ def minimax(board, is_max, turn):
             for j in range(0,3):
                 if board[i][j]=="NONE":                
                     board[i][j] = "O"
-                    best = max(best,minimax(board, False, "O"))
+                    best = max(best,minimax(board, not is_max))
                     
                     board[i][j] = "NONE"
         return best
@@ -79,31 +77,25 @@ def minimax(board, is_max, turn):
             for j in range(0,3):
                 if board[i][j]=="NONE":        
                     board[i][j] = "X"
-                    # print(minimax(board, True))
-                    best = min(best,minimax(board, True, "X"))
-                    # for ele in board:
-                    #     print(ele)
-                    # print(best)
+                    best = min(best,minimax(board, not is_max))
                     board[i][j] = "NONE"
         return best
     
     return best
 def findbestmove(board):
-    best = -100
+    best = -1000
     best_move_location = []
     for i in range(0,3):
         for j in range(0,3):
             if board[i][j]=="NONE":
                 board[i][j] = "O"
-                move_score = minimax(board,False,"X")
+                move_score = minimax(board,False)
                 board[i][j] = "NONE"    
-                # print(i,j,move_score,best)
+                print(i,j,move_score,best)
                 if move_score > best:                  
                     best_move_location = [i,j]
                     best = move_score
-        
 
-    # print(best_move_location,best)
     return best_move_location
 
 
@@ -203,6 +195,7 @@ def ai_turn():
                 count+=1
         if len(unraveled_board) == 0:
             return
+        # the below two lines are to place randomly
         # choice = random.choice(unraveled_board)
         # co_ord1 = co_ord[unraveled_board.index(choice)]
         co_ord1 = findbestmove(BOARD)
@@ -271,10 +264,14 @@ def onObjectClick(event):
 window = Tk()
 window.title("tic-tac-toe")
 window.geometry("600x650")
+frame = Frame(window)
+frame.pack()
+Button(frame,text="Restart game",command=restart_game).grid(row=0,column=0)
+Button(frame,text="Restart game",command=restart_game).grid(row=0,column=1)
 game_canvas = Canvas(window,width=600,height=600, bg='white')
 game_canvas.pack()
 set_board()
-Button(window,text="Restart game",command=restart_game).pack()
+
 game_canvas.create_line(0,200,600,200,width=5)
 game_canvas.create_line(0,400,600,400,width=5)
 game_canvas.create_line(200,0,200,600,width=5)
