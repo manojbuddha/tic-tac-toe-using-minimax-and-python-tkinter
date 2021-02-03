@@ -129,6 +129,7 @@ def restart_game():
     set_board()
     TURN = "X"    
     WIN = False
+    turn_label.configure(text="Turn: "+TURN)
     if mode.get()=="Single":
         if SWAPTURN:
             TURN = "O" 
@@ -281,7 +282,7 @@ def on_canvas_click(event):
         set_turn()
         if mode.get() == "Single":
             ai_turn()
-        turn_label.configure(text="Turn: "+TURN)           
+        turn_label.configure(text="Turn: "+TURN)          
 
 def update_score():
     x_label.config(text = "X: "+str(score_x))
